@@ -48,4 +48,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
         }
     }
+
+    func application(_ app: NSApplication, open urls: [URL]) {
+        for url in urls {
+            if url.scheme == "controltabmapper" && url.host == "trigger" {
+                KeyboardSimulator.shared.performControlTab()
+            }
+        }
+    }
 }
