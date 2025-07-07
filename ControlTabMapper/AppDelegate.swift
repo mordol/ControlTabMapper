@@ -34,6 +34,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
             if event.type == .keyDown && event.keyCode == 53 { // ESC key
                 KeyboardSimulator.shared.releaseControl()
+            } else if event.type == .keyDown && event.keyCode == 0x69 { // F13 key
+                KeyboardSimulator.shared.performControlTab()
             } else if event.type != .keyDown {
                 KeyboardSimulator.shared.releaseControl()
             }
