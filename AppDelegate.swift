@@ -22,6 +22,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
         statusItem.menu = menu
+
+        // Add global event monitor
+        NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .keyDown]) { event in
+            if event.type == .keyDown && event.keyCode == 53 { // ESC key
+                KeyboardSimulator.shared.releaseControl()
+            } else {
+                KeyboardSimulator.shared.releaseControl()
+            }
+        }
     }
 
     @objc func openSettings() {
