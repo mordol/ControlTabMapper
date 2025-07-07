@@ -25,18 +25,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Add global event monitor
         NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .keyDown]) { event in
+            print("Event received: type=\(event.type.rawValue), keyCode=\(event.keyCode), modifierFlags=\(event.modifierFlags.rawValue)")
+
             guard let selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier"),
                   let frontmostApp = NSWorkspace.shared.frontmostApplication,
                   frontmostApp.bundleIdentifier == selectedAppIdentifier else {
+                print("Control key released: App not selected or not frontmost.")
                 KeyboardSimulator.shared.releaseControl()
                 return
             }
 
             if event.type == .keyDown && event.keyCode == 53 { // ESC key
+                print("ESC key pressed. Releasing Control key.")
                 KeyboardSimulator.shared.releaseControl()
             } else if event.type == .keyDown && event.keyCode == 0x09 && event.modifierFlags.contains(.shift) { // Shift + F3 key
+                print("Shift+F3 pressed. Performing Control+Tab.")
                 KeyboardSimulator.shared.performControlTab()
             } else if event.type != .keyDown {
+                print("Mouse button pressed or non-key down event. Releasing Control key.")
                 KeyboardSimulator.shared.releaseControl()
             }
         }
