@@ -25,7 +25,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Add global event monitor
         NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .keyDown]) { event in
-            print("Event received: type=\(event.type.rawValue), keyCode=\(event.keyCode), modifierFlags=\(event.modifierFlags.rawValue)")
+            var logMessage = "Event received: type=\(event.type.rawValue)"
+            if event.type == .keyDown {
+                logMessage += ", keyCode=\(event.keyCode)"
+            }
+            logMessage += ", modifierFlags=\(event.modifierFlags.rawValue)"
+            print(logMessage)
 
             guard let selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier"),
                   let frontmostApp = NSWorkspace.shared.frontmostApplication,
