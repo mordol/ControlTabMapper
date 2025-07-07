@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var runningApps = NSWorkspace.shared.runningApplications
-    @State private var selectedApp: NSRunningApplication?
+    @State private var selectedAppIdentifier: String?
 
     var body: some View {
         VStack {
@@ -15,7 +15,8 @@ struct ContentView: View {
 
             List(runningApps, id: \.bundleIdentifier) { app in
                 Button(action: {
-                    selectedApp = app
+                    selectedAppIdentifier = app.bundleIdentifier
+                    UserDefaults.standard.set(selectedAppIdentifier, forKey: "selectedAppIdentifier")
                 }) {
                     HStack {
                         if let icon = app.icon {
@@ -27,7 +28,7 @@ struct ContentView: View {
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
-                .background(app.bundleIdentifier == selectedApp?.bundleIdentifier ? Color.accentColor : Color.clear)
+                .background(app.bundleIdentifier == selectedAppIdentifier ? Color.accentColor : Color.clear)
                 .cornerRadius(5)
             }
         }
@@ -35,6 +36,7 @@ struct ContentView: View {
         .onAppear {
             // Filter to only show apps with a UI
             runningApps = runningApps.filter { $0.activationPolicy == .regular }
+            selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier")
         }
     }
 }

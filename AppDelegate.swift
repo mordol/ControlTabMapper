@@ -25,9 +25,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Add global event monitor
         NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .keyDown]) { event in
+            guard let selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier"),
+                  let frontmostApp = NSWorkspace.shared.frontmostApplication,
+                  frontmostApp.bundleIdentifier == selectedAppIdentifier else {
+                KeyboardSimulator.shared.releaseControl()
+                return
+            }
+
             if event.type == .keyDown && event.keyCode == 53 { // ESC key
                 KeyboardSimulator.shared.releaseControl()
-            } else {
+            } else if event.type != .keyDown {
                 KeyboardSimulator.shared.releaseControl()
             }
         }
