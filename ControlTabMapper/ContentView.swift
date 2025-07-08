@@ -35,7 +35,7 @@ struct ContentView: View {
         .padding()
         .onAppear {
             // Filter to only show apps with a UI
-            runningApps = runningApps.filter { $0.activationPolicy == .regular }
+            runningApps = runningApps.filter { $0.activationPolicy == .regular && $0.bundleIdentifier != Bundle.main.bundleIdentifier }
             selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier")
         }
     }
