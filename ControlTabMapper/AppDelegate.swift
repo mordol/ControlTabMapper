@@ -113,7 +113,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Check if the trigger key (F3) was pressed.
         if let nsEvent = NSEvent(cgEvent: event) {
             if nsEvent.keyCode == 99 { // F3 key
-                print("F3 pressed in target app. Performing Control+Tab.")
+                // print("F3 pressed in target app. Performing Control+Tab.")
                 KeyboardSimulator.shared.performControlTab()
                 // The event is passed through. If we wanted to consume the F3 press,
                 // we would return nil here.

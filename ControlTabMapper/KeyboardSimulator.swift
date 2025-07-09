@@ -50,7 +50,7 @@ class KeyboardSimulator {
     }
 
     private func simulateEscAfterDelay() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             self?.pressESC()
         }
     }
