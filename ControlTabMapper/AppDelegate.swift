@@ -97,44 +97,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func handle(event: CGEvent, type: CGEventType) -> Unmanaged<CGEvent>? {
-        // First, check if the event should be processed based on the selected app
-        guard let selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier"),
-              let frontmostApp = NSWorkspace.shared.frontmostApplication,
-              frontmostApp.bundleIdentifier == selectedAppIdentifier else {
-            // If not the selected app, release control and pass the event through
-            KeyboardSimulator.shared.releaseControl()
+        // We only care about key down events for the trigger.
+        guard type == .keyDown else {
             return Unmanaged.passRetained(event)
         }
 
-        // Now, handle the event based on its type
-        switch type {
-        case .keyDown:
-            if let nsEvent = NSEvent(cgEvent: event) {
-                let keyCode = nsEvent.keyCode
-                print("KeyDown event: keyCode=\(keyCode), modifierFlags=\(nsEvent.modifierFlags.rawValue)")
+        // Check if the event should be processed based on the selected app.
+        guard let selectedAppIdentifier = UserDefaults.standard.string(forKey: "selectedAppIdentifier"),
+              let frontmostApp = NSWorkspace.shared.frontmostApplication,
+              frontmostApp.bundleIdentifier == selectedAppIdentifier else {
+            // If the focused app is not the selected one, do nothing.
+            return Unmanaged.passRetained(event)
+        }
 
-                if keyCode == 53 { // ESC key
-                    print("ESC key pressed. Releasing Control key.")
-                    KeyboardSimulator.shared.releaseControl()
-                } else if keyCode == 99 { // F3 key
-                    print("F3 pressed. Performing Control+Tab.")
-                    KeyboardSimulator.shared.performControlTab()
-                }
+        // Check if the trigger key (F3) was pressed.
+        if let nsEvent = NSEvent(cgEvent: event) {
+            if nsEvent.keyCode == 99 { // F3 key
+                print("F3 pressed in target app. Performing Control+Tab.")
+                KeyboardSimulator.shared.performControlTab()
+                // The event is passed through. If we wanted to consume the F3 press,
+                // we would return nil here.
             }
-
-        case .leftMouseDown, .rightMouseDown, .otherMouseDown:
-            if KeyboardSimulator.shared.isControlKeyDown {
-                print("Mouse button pressed while Control is down. Allowing click and then simulating ESC.")
-                // Use asyncAfter to allow the original mouse click to be processed first.
-                // We pass the original event through, and then fire ESC shortly after.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { // 100ms delay
-                    KeyboardSimulator.shared.pressESC()
-                }
-            }
-
-        default:
-            // For any other event types, do nothing special
-            break
         }
 
         return Unmanaged.passRetained(event)
