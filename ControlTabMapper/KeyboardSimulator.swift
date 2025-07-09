@@ -41,26 +41,35 @@ class KeyboardSimulator {
         ctrlUp?.post(tap: .cghidEventTap)
     }
 
+    private func pressESC() {
+        let source = CGEventSource(stateID: .hidSystemState)
+        let escDown = CGEvent(keyboardEventSource: source, virtualKey: 53, keyDown: true)
+        escDown?.post(tap: .cghidEventTap)
+        let escUp = CGEvent(keyboardEventSource: source, virtualKey: 53, keyDown: false)
+        escUp?.post(tap: .cghidEventTap)
+    }
+
+    private func simulateEscAfterDelay() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            self?.pressESC()
+        }
+    }
+
     private func startMonitoring() {
         // Register a global event monitor.
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown, .keyDown]) { [weak self] event in
             guard let self = self else { return }
 
-            var shouldReleaseControl = false
-
             if event.type == .keyDown {
-                // 53 is the virtual key code for the Escape key.
-                if event.keyCode == 53 {
-                    shouldReleaseControl = true
+                // If the ESC key is pressed, release Control and stop monitoring.
+                if event.keyCode == 53 { // 53 is the virtual key code for the Escape key.
+                    self.releaseControlKey()
+                    self.stopMonitoring()
                 }
             } else {
-                // Any other configured event (in this case, mouse clicks)
-                shouldReleaseControl = true
-            }
-
-            if shouldReleaseControl {
-                self.releaseControlKey()
-                self.stopMonitoring()
+                // If a mouse button is clicked, simulate an ESC press after a short delay.
+                // The simulated ESC press will then be caught by this same monitor to release the control key.
+                self.simulateEscAfterDelay()
             }
         }
     }
